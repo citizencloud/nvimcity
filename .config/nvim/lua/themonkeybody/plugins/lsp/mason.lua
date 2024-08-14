@@ -3,6 +3,7 @@ return {
 	dependencies = {
 		"williamboman/mason-lspconfig.nvim",
 		"WhoIsSethDaniel/mason-tool-installer.nvim",
+		"jay-babu/mason-nvim-dap.nvim",
 	},
 	config = function()
 		-- import mason
@@ -34,6 +35,8 @@ return {
 				"svelte",
 				"lua_ls",
 				"pyright",
+				"jdtls",
+				"gopls",
 			},
 		})
 
@@ -43,8 +46,19 @@ return {
 				"stylua", -- lua formatter
 				"eslint_d",
 				"gopls",
-				"shellcheck"
+				"shellcheck",
 			},
 		})
+
+		require("mason-nvim-dap").setup({
+			ensure_installed = { "javadbg", "javatest" },
+		})
+
+		local dap = require("dap")
+		local dapui = require("dapui")
+		dapui.setup()
+		dap.listeners.after.event_initialized["dapui_config"] = function()
+			dapui.open({})
+		end
 	end,
 }

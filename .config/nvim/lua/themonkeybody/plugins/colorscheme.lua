@@ -1,45 +1,34 @@
 return {
-  "folke/tokyonight.nvim",
-  priority = 1000,
-  config = function()
-    local transparent = false -- set to true if you would like to enable transparency
-
-    local bg = "#011628"
-    local bg_dark = "#011423"
-    local bg_highlight = "#143652"
-    local bg_search = "#0A64AC"
-    local bg_visual = "#275378"
-    local fg = "#CBE0F0"
-    local fg_dark = "#B4D0E9"
-    local fg_gutter = "#627E97"
-    local border = "#547998"
-
-    require("tokyonight").setup({
-      style = "night",
-      transparent = transparent,
-      styles = {
-        sidebars = transparent and "transparent" or "dark",
-        floats = transparent and "transparent" or "dark",
-      },
-      on_colors = function(colors)
-        colors.bg = bg
-        colors.bg_dark = transparent and colors.none or bg_dark
-        colors.bg_float = transparent and colors.none or bg_dark
-        colors.bg_highlight = bg_highlight
-        colors.bg_popup = bg_dark
-        colors.bg_search = bg_search
-        colors.bg_sidebar = transparent and colors.none or bg_dark
-        colors.bg_statusline = transparent and colors.none or bg_dark
-        colors.bg_visual = bg_visual
-        colors.border = border
-        colors.fg = fg
-        colors.fg_dark = fg_dark
-        colors.fg_float = fg
-        colors.fg_gutter = fg_gutter
-        colors.fg_sidebar = fg_dark
-      end,
-    })
-
-    vim.cmd("colorscheme tokyonight")
-  end,
+	"sainnhe/gruvbox-material",
+	priority = 1000,
+	lazy = vim.g.rg_colorscheme ~= "gruvbox-material",
+	init = function()
+		vim.g.gruvbox_material_background = "hard"
+		vim.g.gruvbox_material_ui_contrast = "light"
+		vim.g.gruvbox_material_transparent_background = vim.g.rg_transparent and 1 or 0
+		vim.g.gruvbox_material_better_performance = 1
+	end,
+	config = function()
+		-- Using autocmd because overrides must be set after loading the colorscheme but before setting it.
+		vim.api.nvim_create_autocmd("ColorScheme", {
+			desc = "Set gruvbox-material float highlights",
+			pattern = "gruvbox-material",
+			callback = function()
+				-- Reference: <plugin>/colors/gruvbox-material.vim
+				vim.cmd([[
+            let s:configuration = gruvbox_material#get_configuration()
+            let s:palette = gruvbox_material#get_palette(
+              \ s:configuration.background, s:configuration.foreground, s:configuration.colors_override)
+            if s:configuration.transparent_background >= 1
+              call gruvbox_material#highlight('NormalFloat', s:palette.fg0, s:palette.none)
+              call gruvbox_material#highlight('FloatBorder', s:palette.fg0, s:palette.none)
+            else
+              call gruvbox_material#highlight('NormalFloat', s:palette.fg0, s:palette.bg0)
+              call gruvbox_material#highlight('FloatBorder', s:palette.fg0, s:palette.bg0)
+            endif
+          ]])
+			end,
+			group = vim.api.nvim_create_augroup("GruvboxMaterialCustomHighlights", { clear = true }),
+		})
+	end,
 }
